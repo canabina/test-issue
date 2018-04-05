@@ -63,4 +63,5 @@ const functions = {
 };
 
 redisNotifer.on('message', redisSubscriber);
+functions.getAwaitingMessages().then(keys => _.map(keys, functions.showMessagesByKey)).catch(console.error);
 module.exports = functions;

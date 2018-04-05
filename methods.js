@@ -2,11 +2,6 @@ const functions = require('./functions') || {};
 const moment = require('moment');
 const _ = require('lodash');
 
-functions
-    .getAwaitingMessages()
-    .then(keys => _.map(keys, functions.showMessagesByKey))
-    .catch(console.error);
-
 module.exports = {
     'get /': (req, res) => res.send('pleace, use /echoAtTime route'),
     'get /echoAtTime': (req, res) => {
