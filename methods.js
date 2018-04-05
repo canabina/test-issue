@@ -13,7 +13,7 @@ module.exports = {
         if (!req.query.message || !req.query.time) return res.send('missing required params');
         const timeToLeft = functions.getTimeDiff(0, req.query.time),
             isNegativeTimeToLeft = (timeToLeft < 0);
-        functions.addMessage(req.query.time, (!isNegativeTimeToLeft ? timeToLeft : 2), req.query.message.toString());
+        functions.addMessage(req.query.time, (!isNegativeTimeToLeft ? timeToLeft : 1), req.query.message.toString());
         return res.send('ok');
     }
 };
