@@ -1,6 +1,6 @@
 # To run
 ```sh
-	$ git clone .
+	$ git clone https://github.com/canabina/test-issue.git .
 	$ npm i
 	$ npm start
 ```
