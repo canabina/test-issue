@@ -1,15 +1,19 @@
 const functions = require('./functions') || {};
 const moment = require('moment');
+const _ = require('lodash');
+
+functions
+    .getAwaitingMessages()
+    .then(keys => _.map(keys, functions.showMessagesByKey))
+    .catch(console.error);
 
 module.exports = {
     'get /': (req, res) => res.send('pleace, use /echoAtTime route'),
     'get /echoAtTime': (req, res) => {
         if (!req.query.message || !req.query.time) return res.send('missing required params');
-        const toExpireTime = moment.unix(parseInt(req.query.time)).unix(),
-            currentTime = moment().unix(),
-            timeToLeft = (toExpireTime - currentTime),
-            isNegativeTimeToLeft = (difference < 0);
-        functions.addMessage(toExpireTime, (!isNegativeTimeToLeft ? timeToLeft : 1), req.query.message.toString());
+        const timeToLeft = functions.getTimeDiff(0, req.query.time),
+            isNegativeTimeToLeft = (timeToLeft < 0);
+        functions.addMessage(req.query.time, (!isNegativeTimeToLeft ? timeToLeft : 2), req.query.message.toString());
         return res.send('ok');
     }
 };

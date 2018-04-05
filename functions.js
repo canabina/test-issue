@@ -5,16 +5,21 @@ const config = _.assign({
     prefixes: {}
 }, require('./config'));
 const redis = require("redis");
+const bluebird = require('bluebird');
+bluebird.promisifyAll(redis.RedisClient.prototype);
+bluebird.promisifyAll(redis.Multi.prototype);
 const notifier = require('redis-notifier');
 const redisClient = redis.createClient(config.redis);
 const redisNotifer = new notifier(redis, _.assign(config.redisNotifer, {
     redis: config.redis
 }));
+const moment = require('moment');
 const dataPredix = config.prefixes.messages || 'messages';
 const expirePrefix = config.prefixes.expire || 'expire';
 
 const redisSubscriber = function(pattern, channelPattern, emittedKey) {
     let channel = this.parseMessageChannel(channelPattern);
+    console.log(emittedKey);
     if (channel.key == 'expired')
         functions.showMessagesByKey(emittedKey);
 };
@@ -34,6 +39,27 @@ const functions = {
             _.map(list, message => console.log(message));
             redisClient.del(dataKey);
         });
+    },
+    getAwaitingMessages: () => {
+        const dataKey = `${dataPredix}_*`;
+        const expireKey = `${expirePrefix}:*`;
+        return Promise
+            .all([
+                redisClient.keysAsync(dataKey),
+                redisClient.keysAsync(expireKey)
+            ])
+            .then(([awaitingMessages, expiredKeys]) => {
+                expiredKeys = _.map(expiredKeys, key => _.get(key.split(':'), '1'))
+                return _.map(_.difference(awaitingMessages, expiredKeys), key => `${expirePrefix}:${key}`);
+            });
+    },
+    getTimeDiff: (time = 0, compareTime) => {
+        time = parseInt(time);
+        compareTime = parseInt(compareTime)
+        if (!time)
+            time = moment().unix();
+        compareTime = moment.unix(compareTime).unix();
+        return compareTime - time;
     }
 };
 
