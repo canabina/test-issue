@@ -19,7 +19,6 @@ const expirePrefix = config.prefixes.expire || 'expire';
 
 const redisSubscriber = function(pattern, channelPattern, emittedKey) {
     let channel = this.parseMessageChannel(channelPattern);
-    console.log(emittedKey);
     if (channel.key == 'expired')
         functions.showMessagesByKey(emittedKey);
 };
